@@ -1,4 +1,12 @@
-use cfg_if::cfg_if;
+use {
+    crate::{
+        data::{Row, Schema},
+        result::{MutResult, Result},
+    },
+    cfg_if::cfg_if,
+    proc::feature_trait_bound,
+    std::fmt::Debug,
+};
 
 cfg_if! {
     if #[cfg(feature = "alter-table")] {
@@ -28,6 +36,9 @@ cfg_if! {
     }
 
 }
+
+// #[feature_trait_bound([("alter-table", AlterTable), ("index", Index)])]
+// pub trait Test<T: Debug> {}
 
 cfg_if! {
     if #[cfg(all(feature = "metadata", feature = "index"))] {
@@ -61,13 +72,7 @@ cfg_if! {
     }
 }
 
-use {
-    crate::{
-        data::{Key, Row, Schema},
-        result::{MutResult, Result},
-    },
-    async_trait::async_trait,
-};
+use {crate::data::Key, async_trait::async_trait};
 
 pub type RowIter = Box<dyn Iterator<Item = Result<(Key, Row)>>>;
 

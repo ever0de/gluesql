@@ -10,6 +10,7 @@ documentation = "https://docs.rs/gluesql/"
 
 [dependencies]
 utils = { package = "gluesql-utils", path = "../utils", version = "0.11.0" }
+proc = { package = "gluesql-proc", path = "../proc" }
 
 regex = "1"
 async-trait = "0.1"
