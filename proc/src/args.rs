@@ -47,6 +47,19 @@ impl Args {
             .into_iter()
             .map(to_token_stream_list)
             .powerset()
+            .filter(|x| !x.is_empty())
             .collect()
+    }
+
+    pub fn all_features(&self) -> Vec<Expr> {
+        let tuple_list = self.clone().inner;
+
+        let to_token_stream_list = |tuple: ExprTuple| {
+            let list = tuple.elems.into_iter().collect::<Vec<_>>();
+            let feature_token = list[0].clone();
+            feature_token
+        };
+
+        tuple_list.into_iter().map(to_token_stream_list).collect()
     }
 }

@@ -4,9 +4,9 @@ use {
         result::{MutResult, Result},
     },
     cfg_if::cfg_if,
-    proc::feature_trait_bound,
-    std::fmt::Debug,
 };
+
+mod test;
 
 cfg_if! {
     if #[cfg(feature = "alter-table")] {
