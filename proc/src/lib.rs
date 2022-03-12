@@ -1,9 +1,12 @@
 use proc_macro::TokenStream;
 use proc_macro2::{Span, TokenStream as TokenStream2};
-use quote::quote;
+use quote::{quote, ToTokens};
 use syn::{
-    parse_macro_input, punctuated::Punctuated, token::Colon2, AttributeArgs, Ident, ItemTrait,
-    Path, PathArguments, PathSegment, TraitBound, TraitBoundModifier, TypeParamBound,
+    parse_macro_input,
+    punctuated::Punctuated,
+    token::{Add, Colon2},
+    AttributeArgs, Ident, ItemTrait, Path, PathArguments, PathSegment, TraitBound,
+    TraitBoundModifier, TypeParamBound,
 };
 
 mod args;
@@ -35,11 +38,14 @@ pub fn feature_trait_bound(args: TokenStream, item: TokenStream) -> TokenStream 
     };
     for pairs in args.for_all_pairs() {
         let mut feature_list = vec![];
+        let mut trait_list: Punctuated<TypeParamBound, Add> = Punctuated::new();
         // let mut trait_name_list = vec![];
         pairs.iter().for_each(|(feature_expr, trait_expr)| {
             feature_list.push(quote! {
                 feature = #feature_expr,
             });
+
+            trait_list.push(parse_macro_input!(quote! {trait_expr } as TypeParamBound));
             // trait_name_list.push(quote! {#trait_expr});
         });
 
