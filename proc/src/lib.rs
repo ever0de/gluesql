@@ -4,7 +4,7 @@ use quote::{quote, ToTokens};
 use syn::{
     parse_macro_input,
     punctuated::Punctuated,
-    token::{Add, Colon2},
+    token::{Add, Colon2, Trait},
     AttributeArgs, Ident, ItemTrait, Path, PathArguments, PathSegment, TraitBound,
     TraitBoundModifier, TypeParamBound,
 };
@@ -24,37 +24,38 @@ pub fn feature_trait_bound(args: TokenStream, item: TokenStream) -> TokenStream 
 
     // supertraits::generate(&item, &args).into()
 
-    let features = args
-        .all_features()
-        .into_iter()
-        .map(|expr| {
-            quote! { not(feature = #expr) }
-        })
-        .collect::<Vec<_>>();
+    // let not_all_features = args
+    //     .all_features()
+    //     .into_iter()
+    //     .map(|expr| {
+    //         quote! { not(feature = #expr) }
+    //     })
+    //     .collect::<Vec<_>>();
 
     let mut source = quote! {
-        #[cfg(all(#(#features),*))]
+        // #[cfg(all(#(#not_all_features),*))]
         #item
     };
     for pairs in args.for_all_pairs() {
+        let origin_trait = item.clone();
         let mut feature_list = vec![];
-        let mut trait_list: Punctuated<TypeParamBound, Add> = Punctuated::new();
-        // let mut trait_name_list = vec![];
+        let mut trait_name_list = vec![];
         pairs.iter().for_each(|(feature_expr, trait_expr)| {
             feature_list.push(quote! {
-                feature = #feature_expr,
+                feature = #feature_expr
             });
 
-            trait_list.push(parse_macro_input!(quote! {trait_expr } as TypeParamBound));
-            // trait_name_list.push(quote! {#trait_expr});
+            let x = match trait_expr {
+                syn::Expr::Path(path) => path.path.segments.iter().map(|seg| seg.ident.to_string()),
+                _ => panic!("TODO"),
+            };
+            trait_name_list.extend(x);
         });
 
-        println!("{:#?}", feature_list);
-
-        // source.extend(quote! {
-        // #[cfg(all(#(#feature_list)*))]
-        //     #item
-        // });
+        source.extend(quote! {
+            #[cfg(all(#(#feature_list),*))]
+            #item
+        });
     }
 
     source.into()
