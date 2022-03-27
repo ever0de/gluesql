@@ -26,7 +26,13 @@ cfg_if! {
         mod metadata;
         pub use metadata::Metadata;
     }
+}
 
+cfg_if! {
+    if #[cfg(feature = "auto-increment")] {
+        mod auto_increment;
+        pub use auto_increment::AutoIncrement;
+    }
 }
 
 cfg_if! {

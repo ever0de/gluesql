@@ -41,6 +41,9 @@ index = []
 # optional: TRANSACTION
 transaction = []
 
+# optional: AUTO_INCREMENT
+auto-increment = []
+
 # optional: METADATA
 # e.g. SHOW TABLES;
 metadata = []
