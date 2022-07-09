@@ -24,20 +24,15 @@ pub fn feature_trait_bound(args: TokenStream, item: TokenStream) -> TokenStream 
 
     // supertraits::generate(&item, &args).into()
 
-    // let not_all_features = args
-    //     .all_features()
-    //     .into_iter()
-    //     .map(|expr| {
-    //         quote! { not(feature = #expr) }
-    //     })
-    //     .collect::<Vec<_>>();
-
+    let not_all_features = args.all_features().into_iter().map(|expr| {
+        quote! { not(feature = #expr) }
+    });
     let mut source = quote! {
-        // #[cfg(all(#(#not_all_features),*))]
+        #[cfg(all(#(#not_all_features),*))]
         #item
     };
+
     for pairs in args.for_all_pairs() {
-        let origin_trait = item.clone();
         let mut feature_list = vec![];
         let mut trait_name_list = vec![];
         pairs.iter().for_each(|(feature_expr, trait_expr)| {
@@ -45,11 +40,8 @@ pub fn feature_trait_bound(args: TokenStream, item: TokenStream) -> TokenStream 
                 feature = #feature_expr
             });
 
-            let x = match trait_expr {
-                syn::Expr::Path(path) => path.path.segments.iter().map(|seg| seg.ident.to_string()),
-                _ => panic!("TODO"),
-            };
-            trait_name_list.extend(x);
+            let trait_name = quote! {#trait_expr}.to_string();
+            trait_name_list.push(trait_name);
         });
 
         source.extend(quote! {
@@ -57,6 +49,8 @@ pub fn feature_trait_bound(args: TokenStream, item: TokenStream) -> TokenStream 
             #item
         });
     }
+
+    println!("{}", source.to_string());
 
     source.into()
 }
