@@ -1,11 +1,8 @@
 use proc_macro::TokenStream;
-use proc_macro2::{Span, TokenStream as TokenStream2};
-use quote::{quote, ToTokens};
+use proc_macro2::TokenStream as TokenStream2;
+use quote::quote;
 use syn::{
-    parse_macro_input,
-    punctuated::Punctuated,
-    token::{Add, Colon2, Trait},
-    AttributeArgs, Ident, ItemTrait, Path, PathArguments, PathSegment, TraitBound,
+    parse_macro_input, punctuated::Punctuated, Ident, ItemTrait, PathSegment, Token, TraitBound,
     TraitBoundModifier, TypeParamBound,
 };
 
@@ -44,9 +41,31 @@ pub fn feature_trait_bound(args: TokenStream, item: TokenStream) -> TokenStream 
             trait_name_list.push(trait_name);
         });
 
+        args.all_features()
+            .into_iter()
+            .filter(|feature| {
+                pairs
+                    .iter()
+                    .position(|(pair_feature, _)| pair_feature != feature)
+                    .is_some()
+            })
+            .for_each(|feature| {
+                feature_list.push(quote! {
+                    not(feature = #feature)
+                });
+            });
+
+        let supertraits = Punctuated::<TypeParamBound, Token![+]>::new();
+        // super_traits.extend(
+        // pairs.iter().map(|(feature_expr, trait_expr| {
+        // })
+        // );
+
+        let mut item_trait = item.clone();
+        item_trait.supertraits = supertraits;
         source.extend(quote! {
             #[cfg(all(#(#feature_list),*))]
-            #item
+            #item_trait
         });
     }
 

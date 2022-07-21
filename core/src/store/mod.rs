@@ -34,7 +34,6 @@ cfg_if! {
         mod metadata;
         pub use metadata::Metadata;
     }
-
 }
 
 // #[feature_trait_bound([("alter-table", AlterTable), ("index", Index)])]
