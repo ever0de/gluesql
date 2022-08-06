@@ -105,3 +105,21 @@ impl From<IndexOperator> for BinaryOperator {
         }
     }
 }
+
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub enum SetOperator {
+    Union,
+    Except,
+    Intersect,
+}
+
+impl ToSql for SetOperator {
+    fn to_sql(&self) -> String {
+        match self {
+            SetOperator::Union => "UNION",
+            SetOperator::Except => "EXCEPT",
+            SetOperator::Intersect => "INTERSECT",
+        }
+        .to_owned()
+    }
+}
