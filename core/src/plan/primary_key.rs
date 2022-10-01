@@ -280,6 +280,7 @@ mod tests {
             selection: None,
             group_by: Vec::new(),
             having: None,
+            distinct: false,
         });
         assert_eq!(actual, expected, "primary key in lhs:\n{sql}");
 
@@ -298,6 +299,7 @@ mod tests {
             selection: None,
             group_by: Vec::new(),
             having: None,
+            distinct: false,
         });
         assert_eq!(actual, expected, "primary key in rhs:\n{sql}");
 
@@ -316,6 +318,7 @@ mod tests {
             selection: Some(expr("True")),
             group_by: Vec::new(),
             having: None,
+            distinct: false,
         });
         assert_eq!(actual, expected, "AND binary op:\n{sql}");
 
@@ -340,6 +343,7 @@ mod tests {
             selection: Some(expr("name IS NOT NULL AND True")),
             group_by: Vec::new(),
             having: None,
+            distinct: false,
         });
         assert_eq!(actual, expected, "AND binary op 2:\n{sql}");
 
@@ -373,6 +377,7 @@ mod tests {
             selection: Some(expr("name IS NOT NULL AND (True)")),
             group_by: Vec::new(),
             having: None,
+            distinct: false,
         });
         assert_eq!(actual, expected, "AND binary op 3:\n{sql}");
     }
@@ -413,6 +418,7 @@ mod tests {
             selection: None,
             group_by: Vec::new(),
             having: None,
+            distinct: false,
         });
         assert_eq!(actual, expected, "basic inner join:\n{sql}");
 
@@ -439,6 +445,7 @@ mod tests {
             selection: Some(expr("Player.id = Badge.user_id")),
             group_by: Vec::new(),
             having: None,
+            distinct: false,
         });
         assert_eq!(actual, expected, "join but no primary key:\n{sql}");
 
@@ -463,6 +470,7 @@ mod tests {
                     selection: None,
                     group_by: Vec::new(),
                     having: None,
+                    distinct: false,
                 })),
                 limit: None,
                 offset: None,
@@ -486,6 +494,7 @@ mod tests {
                 }),
                 group_by: Vec::new(),
                 having: None,
+                distinct: false,
             })
         };
         assert_eq!(actual, expected, "nested select:\n{sql}");
@@ -520,6 +529,7 @@ mod tests {
                     selection: None,
                     group_by: Vec::new(),
                     having: None,
+                    distinct: false,
                 })),
                 limit: Some(expr("1")),
                 offset: None,
@@ -543,6 +553,7 @@ mod tests {
                 }),
                 group_by: Vec::new(),
                 having: None,
+                distinct: false,
             })
         };
         assert_eq!(actual, expected, "name is not primary key:\n{sql}");
@@ -571,6 +582,7 @@ mod tests {
                     selection: Some(expr("id = id")),
                     group_by: Vec::new(),
                     having: None,
+                    distinct: false,
                 })),
                 limit: None,
                 offset: None,
@@ -594,6 +606,7 @@ mod tests {
                 }),
                 group_by: Vec::new(),
                 having: None,
+                distinct: false,
             })
         };
         assert_eq!(actual, expected, "ambiguous nested contexts:\n{sql}");
@@ -638,6 +651,7 @@ mod tests {
             selection: Some(Expr::Nested(Box::new(expr("name")))),
             group_by: Vec::new(),
             having: None,
+            distinct: false,
         });
         assert_eq!(actual, expected, "nested:\n{sql}");
     }

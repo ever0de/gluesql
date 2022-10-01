@@ -100,6 +100,7 @@ async fn scan_select(storage: &dyn Store, select: &Select) -> Result<Vec<Schema>
         selection,
         group_by,
         having,
+        distinct,
     } = select;
 
     let projection = stream::iter(projection)

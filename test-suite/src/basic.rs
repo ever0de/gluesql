@@ -48,6 +48,11 @@ CREATE TABLE TestA (
 
     run!("UPDATE Test SET id = 2");
 
+    test!(
+        "SELECT DISTINCT id, num FROM Test WHERE id > 1;",
+        Ok(select!(id | num; I64|I64; 2 2; 2 9; 2 4; 2 7))
+    );
+
     let test_cases = [
         ("SELECT id FROM Test", Ok(select!(id; I64; 2; 2; 2; 2))),
         (

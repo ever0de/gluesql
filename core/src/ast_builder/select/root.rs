@@ -89,6 +89,7 @@ impl Prebuild for SelectNode {
             filter: None,
             group_by: vec![],
             having: None,
+            distinct: todo!(),
             order_by: vec![],
             offset: None,
             limit: None,

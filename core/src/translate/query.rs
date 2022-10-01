@@ -70,6 +70,7 @@ fn translate_select(sql_select: &SqlSelect) -> Result<Select> {
         selection,
         group_by,
         having,
+        distinct,
         ..
     } = sql_select;
 
@@ -98,6 +99,7 @@ fn translate_select(sql_select: &SqlSelect) -> Result<Select> {
         selection: selection.as_ref().map(translate_expr).transpose()?,
         group_by: group_by.iter().map(translate_expr).collect::<Result<_>>()?,
         having: having.as_ref().map(translate_expr).transpose()?,
+        distinct: *distinct,
     })
 }
 

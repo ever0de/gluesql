@@ -112,6 +112,7 @@ fn plan_query(schema_map: &HashMap<String, Schema>, query: Query) -> Result<Quer
                 selection,
                 group_by,
                 having,
+                distinct,
             } = *select;
 
             let TableWithJoins { relation, joins } = from;
@@ -134,6 +135,7 @@ fn plan_query(schema_map: &HashMap<String, Schema>, query: Query) -> Result<Quer
                 selection,
                 group_by,
                 having,
+                distinct,
             };
 
             Ok(Query {
@@ -169,6 +171,7 @@ fn plan_select(
         selection,
         group_by,
         having,
+        distinct,
     } = select;
 
     let selection = match selection {
@@ -180,6 +183,7 @@ fn plan_select(
                 selection,
                 group_by,
                 having,
+                distinct,
             });
         }
     };
@@ -191,6 +195,7 @@ fn plan_select(
             selection: Some(selection),
             group_by,
             having,
+            distinct,
         }),
         Planned::IndexedExpr {
             index_name,
@@ -223,6 +228,7 @@ fn plan_select(
                 selection,
                 group_by,
                 having,
+                distinct,
             })
         }
     }

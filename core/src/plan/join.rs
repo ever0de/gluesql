@@ -62,22 +62,16 @@ impl<'a> Planner<'a> for JoinPlanner<'a> {
 impl<'a> JoinPlanner<'a> {
     fn select(&self, outer_context: Option<Rc<Context<'a>>>, select: Select) -> Select {
         let Select {
-            projection,
-            from,
-            selection,
-            group_by,
-            having,
+            from, selection, ..
         } = select;
 
         let (outer_context, from) = self.table_with_joins(outer_context, from);
         let selection = selection.map(|expr| self.subquery_expr(outer_context, expr));
 
         Select {
-            projection,
             from,
             selection,
-            group_by,
-            having,
+            ..select
         }
     }
 
@@ -489,6 +483,7 @@ mod tests {
             selection: None,
             group_by: Vec::new(),
             having: None,
+            distinct: false,
         });
         assert_eq!(actual, expected, "basic select:\n{sql}");
 
@@ -519,6 +514,7 @@ mod tests {
             selection: None,
             group_by: Vec::new(),
             having: None,
+            distinct: false,
         });
         assert_eq!(actual, expected, "basic nested loop join:\n{sql}");
 
@@ -541,6 +537,7 @@ mod tests {
             selection: None,
             group_by: Vec::new(),
             having: None,
+            distinct: false,
         });
         assert_eq!(actual, expected, "basic nested loop join 2:\n{sql}");
 
@@ -571,6 +568,7 @@ mod tests {
             selection: None,
             group_by: Vec::new(),
             having: None,
+            distinct: false,
         });
         assert_eq!(actual, expected, "self multiple joins:\n{sql}");
 
@@ -600,6 +598,7 @@ mod tests {
                 selection: None,
                 group_by: Vec::new(),
                 having: None,
+                distinct: false,
             })
         };
         assert_eq!(actual, expected, "basic hash join query:\n{sql}");
@@ -635,6 +634,7 @@ mod tests {
                 selection: None,
                 group_by: Vec::new(),
                 having: None,
+                distinct: false,
             })
         };
         assert_eq!(
@@ -661,6 +661,7 @@ mod tests {
                 selection: None,
                 group_by: Vec::new(),
                 having: None,
+                distinct: false,
             })
         };
         assert_eq!(actual, expected, "subquery in join_constraint:\n{sql}");
@@ -713,6 +714,7 @@ mod tests {
                 selection: Some(expr("True")),
                 group_by: Vec::new(),
                 having: None,
+                distinct: false,
             })
         };
         assert_eq!(actual, expected, "where_clause AND hash_join expr:\n{sql}");
@@ -748,6 +750,7 @@ mod tests {
                 selection: None,
                 group_by: Vec::new(),
                 having: None,
+                distinct: false,
             })
         };
         assert_eq!(
@@ -787,6 +790,7 @@ mod tests {
                 selection: Some(expr("True")),
                 group_by: Vec::new(),
                 having: None,
+                distinct: false,
             })
         };
         assert_eq!(actual, expected, "complex where_clause:\n{sql}");
@@ -820,6 +824,7 @@ mod tests {
                 selection: Some(expr("True")),
                 group_by: Vec::new(),
                 having: None,
+                distinct: false,
             })
         };
         assert_eq!(actual, expected, "hash_join expr AND where_clause:\n{sql}");
@@ -859,6 +864,7 @@ mod tests {
                     selection: None,
                     group_by: Vec::new(),
                     having: None,
+                    distinct: false,
                 })),
                 order_by: vec![],
                 limit: None,
@@ -882,6 +888,7 @@ mod tests {
                 }),
                 group_by: Vec::new(),
                 having: None,
+                distinct: false,
             })
         };
         assert_eq!(actual, expected, "hash join in subquery:\n{sql}");
@@ -919,6 +926,7 @@ mod tests {
                     selection: None,
                     group_by: Vec::new(),
                     having: None,
+                    distinct: false,
                 })),
                 order_by: vec![],
                 limit: None,
@@ -939,6 +947,7 @@ mod tests {
                     }),
                     group_by: Vec::new(),
                     having: None,
+                    distinct: false,
                 })),
                 order_by: vec![],
                 limit: None,
@@ -958,6 +967,7 @@ mod tests {
                 }),
                 group_by: Vec::new(),
                 having: None,
+                distinct: false,
             })
         };
         assert_eq!(actual, expected, "hash join in nested subquery:\n{sql}");
@@ -995,6 +1005,7 @@ mod tests {
                 selection: Some(expr("True")),
                 group_by: Vec::new(),
                 having: None,
+                distinct: false,
             })
         };
         assert_eq!(
@@ -1035,6 +1046,7 @@ mod tests {
                 selection: Some(expr("True")),
                 group_by: Vec::new(),
                 having: None,
+                distinct: false,
             })
         };
         assert_eq!(
@@ -1086,6 +1098,7 @@ mod tests {
                     selection: None,
                     group_by: Vec::new(),
                     having: None,
+                    distinct: false,
                 })),
                 order_by: vec![],
                 limit: None,
@@ -1104,6 +1117,7 @@ mod tests {
                 selection: Some(selection),
                 group_by: Vec::new(),
                 having: None,
+                distinct: false,
             })
         };
 

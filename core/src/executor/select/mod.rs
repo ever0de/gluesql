@@ -201,6 +201,7 @@ pub async fn select_with_labels<'a>(
         projection,
         group_by,
         having,
+        distinct,
     } = match &query.body {
         SetExpr::Select(statement) => statement.as_ref(),
         SetExpr::Values(Values(values_list)) => {

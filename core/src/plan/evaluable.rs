@@ -85,6 +85,7 @@ fn check_select(context: Option<Rc<Context<'_>>>, select: &Select) -> bool {
         selection,
         group_by,
         having,
+        distinct,
     } = select;
 
     if !projection

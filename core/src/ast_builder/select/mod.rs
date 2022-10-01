@@ -39,6 +39,7 @@ pub struct NodeData {
     /// WHERE
     pub group_by: Vec<Expr>,
     pub having: Option<Expr>,
+    pub distinct: bool,
     pub order_by: Vec<OrderByExpr>,
     pub limit: Option<Expr>,
     pub offset: Option<Expr>,
@@ -51,6 +52,7 @@ impl NodeData {
             relation,
             group_by,
             having,
+            distinct,
             order_by,
             offset,
             limit,
@@ -67,6 +69,7 @@ impl NodeData {
             selection,
             group_by,
             having,
+            distinct,
         };
 
         Query {
