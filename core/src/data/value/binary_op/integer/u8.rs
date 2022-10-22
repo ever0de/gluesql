@@ -1,8 +1,8 @@
 use {crate::prelude::Value, rust_decimal::prelude::Decimal, std::cmp::Ordering};
 
-super::macros::impl_try_binary_op!(U8, u8);
+super::macros::impl_try_binary_op!(U8(u8));
 #[cfg(test)]
-super::macros::generate_binary_op_tests!(U8, u8);
+super::macros::generate_binary_op_tests!(U8(u8));
 
 impl PartialEq<Value> for u8 {
     fn eq(&self, other: &Value) -> bool {

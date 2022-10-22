@@ -1,8 +1,8 @@
 macro_rules! impl_interval_method {
-    (checked_mul, $lhs_variant: ident, $op: ident, $lhs: ident, $rhs: ident) => {
+    (checked_mul, $lhs_variant: ident($lhs: ident), $op: ident, $rhs: ident) => {
         return Ok(Value::Interval($lhs * $rhs))
     };
-    ($other: ident, $lhs_variant: ident, $op: ident, $lhs: ident, $rhs: ident) => {
+    ($other: ident, $lhs_variant: ident($lhs: ident), $op: ident, $rhs: ident) => {
         return Err(ValueError::NonNumericMathOperation {
             lhs: $lhs_variant($lhs),
             operator: $op,
@@ -13,7 +13,7 @@ macro_rules! impl_interval_method {
 }
 
 macro_rules! impl_method {
-    ($lhs_variant: ident, $lhs_primitive: ident, $lhs: ident, $method: ident, $op: ident, $rhs: ident) => {{
+    ($method: ident($lhs_variant: ident($lhs_primitive: ident)), $lhs: ident, $op: ident, $rhs: ident) => {{
         match *$rhs {
             I8(rhs) => $lhs
                 .$method($lhs_primitive::try_from($rhs)?)
@@ -97,7 +97,7 @@ macro_rules! impl_method {
                 }),
             Null => return Ok(Null),
             Interval(rhs) => {
-                super::macros::impl_interval_method!($method, $lhs_variant, $op, $lhs, rhs);
+                super::macros::impl_interval_method!($method, $lhs_variant($lhs), $op, rhs);
             }
             _ => Err(ValueError::NonNumericMathOperation {
                 lhs: $lhs_variant($lhs),
@@ -111,7 +111,7 @@ macro_rules! impl_method {
 }
 
 macro_rules! impl_try_binary_op {
-    ($variant: ident, $primitive: ident) => {
+    ($variant: ident($primitive: ident)) => {
         use $crate::{
             data::value::{
                 error::{NumericBinaryOperator::*, ValueError},
@@ -126,27 +126,27 @@ macro_rules! impl_try_binary_op {
 
             fn try_add(&self, rhs: &Self::Rhs) -> Result<Value> {
                 let lhs = *self;
-                super::macros::impl_method!($variant, $primitive, lhs, checked_add, Add, rhs)
+                super::macros::impl_method!(checked_add($variant($primitive)), lhs, Add, rhs)
             }
 
             fn try_subtract(&self, rhs: &Self::Rhs) -> Result<Value> {
                 let lhs = *self;
-                super::macros::impl_method!($variant, $primitive, lhs, checked_sub, Subtract, rhs)
+                super::macros::impl_method!(checked_sub($variant($primitive)), lhs, Subtract, rhs)
             }
 
             fn try_multiply(&self, rhs: &Self::Rhs) -> Result<Value> {
                 let lhs = *self;
-                super::macros::impl_method!($variant, $primitive, lhs, checked_mul, Multiply, rhs)
+                super::macros::impl_method!(checked_mul($variant($primitive)), lhs, Multiply, rhs)
             }
 
             fn try_divide(&self, rhs: &Self::Rhs) -> Result<Value> {
                 let lhs = *self;
-                super::macros::impl_method!($variant, $primitive, lhs, checked_div, Divide, rhs)
+                super::macros::impl_method!(checked_div($variant($primitive)), lhs, Divide, rhs)
             }
 
             fn try_modulo(&self, rhs: &Self::Rhs) -> Result<Value> {
                 let lhs = *self;
-                super::macros::impl_method!($variant, $primitive, lhs, checked_rem, Modulo, rhs)
+                super::macros::impl_method!(checked_rem($variant($primitive)), lhs, Modulo, rhs)
             }
         }
     };
@@ -154,7 +154,7 @@ macro_rules! impl_try_binary_op {
 
 #[cfg(test)]
 macro_rules! generate_binary_op_tests {
-    ($variant: ident, $primitive: ident) => {
+    ($variant: ident($primitive: ident)) => {
         mod tests {
             use {
                 rust_decimal::prelude::Decimal,
