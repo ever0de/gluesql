@@ -58,7 +58,7 @@ pub enum PayloadVariable {
 
 pub async fn execute<T: GStore + GStoreMut>(
     storage: &mut T,
-    statement: &Statement,
+    statement: Statement,
 ) -> Result<Payload> {
     if matches!(
         statement,
