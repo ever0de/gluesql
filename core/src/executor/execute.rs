@@ -86,10 +86,9 @@ pub async fn execute<T: GStore + GStoreMut>(
 
 async fn execute_inner<T: GStore + GStoreMut>(
     storage: &mut T,
-    statement: &Statement,
+    statement: Statement,
 ) -> Result<Payload> {
     match statement {
-        //- Modification
         //-- Tables
         Statement::CreateTable {
             name,
@@ -100,31 +99,31 @@ async fn execute_inner<T: GStore + GStoreMut>(
             ..
         } => create_table(
             storage,
-            name,
+            &name,
             columns.as_ref().map(Vec::as_slice),
-            *if_not_exists,
-            source,
-            engine,
+            if_not_exists,
+            &source,
+            &engine,
         )
         .await
         .map(|_| Payload::Create),
         Statement::DropTable {
             names, if_exists, ..
-        } => drop_table(storage, names, *if_exists)
+        } => drop_table(storage, &names, if_exists)
             .await
             .map(|_| Payload::DropTable),
-        Statement::AlterTable { name, operation } => alter_table(storage, name, operation)
+        Statement::AlterTable { name, operation } => alter_table(storage, &name, &operation)
             .await
             .map(|_| Payload::AlterTable),
         Statement::CreateIndex {
             name,
             table_name,
             column,
-        } => create_index(storage, table_name, name, column)
+        } => create_index(storage, &table_name, &name, &column)
             .await
             .map(|_| Payload::CreateIndex),
         Statement::DropIndex { name, table_name } => storage
-            .drop_index(table_name, name)
+            .drop_index(&table_name, &name)
             .await
             .map(|_| Payload::DropIndex),
         //- Transaction
@@ -139,7 +138,7 @@ async fn execute_inner<T: GStore + GStoreMut>(
             table_name,
             columns,
             source,
-        } => insert(storage, table_name, columns, source)
+        } => insert(storage, &table_name, &columns, &source)
             .await
             .map(Payload::Insert),
         Statement::Update {
@@ -148,7 +147,7 @@ async fn execute_inner<T: GStore + GStoreMut>(
             assignments,
         } => {
             let Schema { column_defs, .. } = storage
-                .fetch_schema(table_name)
+                .fetch_schema(&table_name)
                 .await?
                 .ok_or_else(|| ExecuteError::TableNotFound(table_name.to_owned()))?;
 
@@ -163,9 +162,9 @@ async fn execute_inner<T: GStore + GStoreMut>(
                 .map(|assignment| assignment.id.to_owned())
                 .collect();
 
-            let update = Update::new(storage, table_name, assignments, column_defs.as_deref())?;
+            let update = Update::new(storage, &table_name, &assignments, column_defs.as_deref())?;
 
-            let rows = fetch(storage, table_name, all_columns, selection.as_ref())
+            let rows = fetch(storage, &table_name, all_columns, selection.as_ref())
                 .await?
                 .and_then(|item| {
                     let update = &update;
@@ -188,7 +187,7 @@ async fn execute_inner<T: GStore + GStoreMut>(
                     Row::Map(_) => None,
                 });
 
-                validate_unique(storage, table_name, column_validation, rows).await?;
+                validate_unique(storage, &table_name, column_validation, rows).await?;
             }
 
             let num_rows = rows.len();
@@ -198,7 +197,7 @@ async fn execute_inner<T: GStore + GStoreMut>(
                 .collect();
 
             storage
-                .insert_data(table_name, rows)
+                .insert_data(&table_name, rows)
                 .await
                 .map(|_| Payload::Update(num_rows))
         }
@@ -206,8 +205,8 @@ async fn execute_inner<T: GStore + GStoreMut>(
             table_name,
             selection,
         } => {
-            let columns = fetch_columns(storage, table_name).await?.map(Rc::from);
-            let keys = fetch(storage, table_name, columns, selection.as_ref())
+            let columns = fetch_columns(storage, &table_name).await?.map(Rc::from);
+            let keys = fetch(storage, &table_name, columns, selection.as_ref())
                 .await?
                 .map_ok(|(key, _)| key)
                 .try_collect::<Vec<_>>()
@@ -216,14 +215,14 @@ async fn execute_inner<T: GStore + GStoreMut>(
             let num_keys = keys.len();
 
             storage
-                .delete_data(table_name, keys)
+                .delete_data(&table_name, keys)
                 .await
                 .map(|_| Payload::Delete(num_keys))
         }
 
         //- Selection
         Statement::Query(query) => {
-            let (labels, rows) = select_with_labels(storage, query, None).await?;
+            let (labels, rows) = select_with_labels(storage, &query, None).await?;
 
             match labels {
                 Some(labels) => rows
@@ -240,7 +239,7 @@ async fn execute_inner<T: GStore + GStoreMut>(
         }
         Statement::ShowColumns { table_name } => {
             let Schema { column_defs, .. } = storage
-                .fetch_schema(table_name)
+                .fetch_schema(&table_name)
                 .await?
                 .ok_or_else(|| ExecuteError::TableNotFound(table_name.to_owned()))?;
 
