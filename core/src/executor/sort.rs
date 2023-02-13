@@ -62,7 +62,7 @@ impl<'a, T: GStore> Sort<'a, T> {
         if self.order_by.is_empty() {
             let rows = rows.map_ok(|(.., row)| row);
 
-            return Ok(Rows::NonOrderBy(Box::pin(rows)));
+            return Ok(Rows::NonOrderBy(rows));
         }
 
         let rows = rows
