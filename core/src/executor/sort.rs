@@ -12,7 +12,6 @@ use {
     serde::Serialize,
     std::{borrow::Cow, cmp::Ordering, fmt::Debug, rc::Rc},
     thiserror::Error as ThisError,
-    utils::Vector,
 };
 
 #[derive(ThisError, Serialize, Debug, PartialEq, Eq)]
@@ -65,15 +64,15 @@ impl<'a, T: GStore> Sort<'a, T> {
             return Ok(Rows::NonOrderBy(rows));
         }
 
-        let rows = rows
+        let mut rows = rows
             .and_then(|(aggregated, next, row)| {
                 enum SortType<'a> {
                     Value(Value),
                     Expr(&'a Expr),
                 }
 
-                let order_by = self.order_by;
-                let order_by = order_by
+                let order_by = self
+                    .order_by
                     .iter()
                     .map(|OrderByExpr { expr, asc }| -> Result<_> {
                         let big_decimal = match expr {
@@ -153,12 +152,11 @@ impl<'a, T: GStore> Sort<'a, T> {
                 }
             })
             .try_collect::<Vec<(Vec<(Value, Option<bool>)>, Row)>>()
-            .await
-            .map(Vector::from)?
-            .sort_by(|(values_a, ..), (values_b, ..)| sort_by(values_a, values_b))
-            .into_iter()
-            .map(|(.., row)| Ok(row));
+            .await?;
 
+        rows.sort_by(|(values_a, ..), (values_b, ..)| sort_by(values_a, values_b));
+
+        let rows = rows.into_iter().map(|(.., row)| Ok(row));
         Ok(Rows::OrderBy(stream::iter(rows)))
     }
 }
