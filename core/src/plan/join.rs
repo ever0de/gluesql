@@ -198,8 +198,8 @@ impl<'a> JoinPlanner<'a> {
                     Context::concat(context, outer_context)
                 };
 
-                let left_as_key = check_evaluable(key_context.as_ref().map(Rc::clone), &left);
-                let right_as_value = check_evaluable(value_context.as_ref().map(Rc::clone), &right);
+                let left_as_key = check_evaluable(key_context.as_deref(), &left);
+                let right_as_value = check_evaluable(value_context.as_deref(), &right);
 
                 if left_as_key && right_as_value {
                     let join_executor = JoinExecutor::Hash {
@@ -211,8 +211,8 @@ impl<'a> JoinPlanner<'a> {
                     return (join_executor, None);
                 }
 
-                let right_as_key = check_evaluable(key_context, &right);
-                let left_as_value = left_as_key || check_evaluable(value_context, &left);
+                let right_as_key = check_evaluable(key_context.as_deref(), &right);
+                let left_as_value = left_as_key || check_evaluable(value_context.as_deref(), &left);
 
                 if right_as_key && left_as_value {
                     let join_executor = JoinExecutor::Hash {
@@ -385,7 +385,7 @@ fn find_evaluable(context: Option<Rc<Context<'_>>>, expr: Expr) -> (EvaluableExp
 
             (evaluable_expr, remainder_expr)
         }
-        _ if check_evaluable(context, &expr) => (Some(expr), None),
+        _ if check_evaluable(context.as_deref(), &expr) => (Some(expr), None),
         _ => (None, Some(expr)),
     }
 }

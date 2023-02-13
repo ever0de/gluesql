@@ -128,7 +128,7 @@ impl<'a> PrimaryKeyPlanner<'a> {
                 op: BinaryOperator::Eq,
                 right: key,
             } if check_primary_key(key.as_ref())
-                && check_evaluable(current_context.as_ref().map(Rc::clone), &key)
+                && check_evaluable(current_context.as_deref(), &key)
                 && check_evaluable(None, &value) =>
             {
                 let index_item = IndexItem::PrimaryKey(*value);

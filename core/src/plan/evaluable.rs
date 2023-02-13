@@ -4,10 +4,10 @@ use {
         Expr, Join, JoinConstraint, JoinOperator, Query, Select, SelectItem, SetExpr, TableAlias,
         TableFactor, TableWithJoins, Values,
     },
-    std::{convert::identity, rc::Rc},
+    std::convert::identity,
 };
 
-pub fn check_expr(context: Option<Rc<Context<'_>>>, expr: &Expr) -> bool {
+pub fn check_expr(context: Option<&Context<'_>>, expr: &Expr) -> bool {
     match expr.into() {
         PlanExpr::None => true,
         PlanExpr::Identifier(ident) => context.map(|c| c.contains_column(ident)).unwrap_or(false),
@@ -20,25 +20,19 @@ pub fn check_expr(context: Option<Rc<Context<'_>>>, expr: &Expr) -> bool {
                 .unwrap_or(false)
         }
         PlanExpr::Expr(expr) => check_expr(context, expr),
-        PlanExpr::TwoExprs(expr, expr2) => {
-            check_expr(context.as_ref().map(Rc::clone), expr) && check_expr(context, expr2)
-        }
+        PlanExpr::TwoExprs(expr, expr2) => check_expr(context, expr) && check_expr(context, expr2),
         PlanExpr::ThreeExprs(expr, expr2, expr3) => {
-            check_expr(context.as_ref().map(Rc::clone), expr)
-                && check_expr(context.as_ref().map(Rc::clone), expr2)
-                && check_expr(context, expr3)
+            check_expr(context, expr) && check_expr(context, expr2) && check_expr(context, expr3)
         }
-        PlanExpr::MultiExprs(exprs) => exprs
-            .iter()
-            .all(|expr| check_expr(context.as_ref().map(Rc::clone), expr)),
+        PlanExpr::MultiExprs(exprs) => exprs.iter().all(|expr| check_expr(context, expr)),
         PlanExpr::Query(query) => check_query(context, query),
         PlanExpr::QueryAndExpr { query, expr } => {
-            check_query(context.as_ref().map(Rc::clone), query) && check_expr(context, expr)
+            check_query(context, query) && check_expr(context, expr)
         }
     }
 }
 
-fn check_query(context: Option<Rc<Context<'_>>>, query: &Query) -> bool {
+fn check_query(context: Option<&Context<'_>>, query: &Query) -> bool {
     let Query {
         body,
         order_by,
@@ -47,11 +41,11 @@ fn check_query(context: Option<Rc<Context<'_>>>, query: &Query) -> bool {
     } = query;
 
     let body = match body {
-        SetExpr::Select(select) => check_select(context.as_ref().map(Rc::clone), select),
+        SetExpr::Select(select) => check_select(context, select),
         SetExpr::Values(Values(rows)) => rows
             .iter()
             .flatten()
-            .map(|expr| check_expr(context.as_ref().map(Rc::clone), expr))
+            .map(|expr| check_expr(context, expr))
             .all(identity),
     };
 
@@ -62,7 +56,7 @@ fn check_query(context: Option<Rc<Context<'_>>>, query: &Query) -> bool {
     let order_by = order_by
         .iter()
         .map(|order_by| &order_by.expr)
-        .map(|expr| check_expr(context.as_ref().map(Rc::clone), expr))
+        .map(|expr| check_expr(context, expr))
         .all(identity);
     if !order_by {
         return false;
@@ -71,11 +65,11 @@ fn check_query(context: Option<Rc<Context<'_>>>, query: &Query) -> bool {
     limit
         .iter()
         .chain(offset.iter())
-        .map(|expr| check_expr(context.as_ref().map(Rc::clone), expr))
+        .map(|expr| check_expr(context, expr))
         .all(identity)
 }
 
-fn check_select(context: Option<Rc<Context<'_>>>, select: &Select) -> bool {
+fn check_select(context: Option<&Context<'_>>, select: &Select) -> bool {
     let Select {
         projection,
         from,
@@ -87,7 +81,7 @@ fn check_select(context: Option<Rc<Context<'_>>>, select: &Select) -> bool {
     if !projection
         .iter()
         .map(|select_item| match select_item {
-            SelectItem::Expr { expr, .. } => check_expr(context.as_ref().map(Rc::clone), expr),
+            SelectItem::Expr { expr, .. } => check_expr(context, expr),
             SelectItem::QualifiedWildcard(_) | SelectItem::Wildcard => true,
         })
         .all(identity)
@@ -97,7 +91,7 @@ fn check_select(context: Option<Rc<Context<'_>>>, select: &Select) -> bool {
 
     let TableWithJoins { relation, joins } = from;
 
-    if !check_table_factor(context.as_ref().map(Rc::clone), relation) {
+    if !check_table_factor(context, relation) {
         return false;
     }
 
@@ -110,15 +104,13 @@ fn check_select(context: Option<Rc<Context<'_>>>, select: &Select) -> bool {
                 ..
             } = join;
 
-            if !check_table_factor(context.as_ref().map(Rc::clone), relation) {
+            if !check_table_factor(context, relation) {
                 return false;
             }
 
             match join_operator {
                 JoinOperator::Inner(JoinConstraint::On(expr))
-                | JoinOperator::LeftOuter(JoinConstraint::On(expr)) => {
-                    check_expr(context.as_ref().map(Rc::clone), expr)
-                }
+                | JoinOperator::LeftOuter(JoinConstraint::On(expr)) => check_expr(context, expr),
                 JoinOperator::Inner(JoinConstraint::None)
                 | JoinOperator::LeftOuter(JoinConstraint::None) => true,
             }
@@ -132,11 +124,11 @@ fn check_select(context: Option<Rc<Context<'_>>>, select: &Select) -> bool {
         .iter()
         .chain(group_by.iter())
         .chain(having.iter())
-        .map(|expr| check_expr(context.as_ref().map(Rc::clone), expr))
+        .map(|expr| check_expr(context, expr))
         .all(identity)
 }
 
-fn check_table_factor(context: Option<Rc<Context<'_>>>, table_factor: &TableFactor) -> bool {
+fn check_table_factor(context: Option<&Context<'_>>, table_factor: &TableFactor) -> bool {
     let alias = match table_factor {
         TableFactor::Table { name, alias, .. } => alias
             .as_ref()
@@ -160,7 +152,7 @@ mod tests {
         std::rc::Rc,
     };
 
-    fn test(context: Option<Rc<Context<'_>>>, sql: &str, expected: bool) {
+    fn test(context: Option<&Context<'_>>, sql: &str, expected: bool) {
         let parsed = parse_expr(sql).unwrap();
         let expr = translate_expr(&parsed);
         let actual = match expr {
@@ -194,7 +186,7 @@ mod tests {
 
         macro_rules! test {
             ($sql: literal, $expected: expr) => {
-                test(context.as_ref().map(Rc::clone), $sql, $expected);
+                test(context.as_deref(), $sql, $expected);
             };
         }
 
