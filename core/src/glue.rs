@@ -24,12 +24,12 @@ impl<T: GStore + GStoreMut> Glue<T> {
         Self { storage }
     }
 
-    pub async fn plan<Sql: AsRef<str>>(&mut self, sql: Sql) -> Result<Vec<Statement>> {
+    pub async fn plan(&self, sql: impl AsRef<str>) -> Result<Vec<Statement>> {
         let parsed = parse(sql)?;
-        let storage = &self.storage;
+
         stream::iter(parsed)
             .map(|p| translate(&p))
-            .then(|statement| async move { plan(storage, statement?).await })
+            .then(|statement| async move { plan(&self.storage, statement?).await })
             .try_collect()
             .await
     }
@@ -38,8 +38,9 @@ impl<T: GStore + GStoreMut> Glue<T> {
         block_on(self.execute_stmt_async(statement))
     }
 
-    pub fn execute<Sql: AsRef<str>>(&mut self, sql: Sql) -> Result<Vec<Payload>> {
+    pub fn execute(&mut self, sql: impl AsRef<str>) -> Result<Vec<Payload>> {
         let statements = block_on(self.plan(sql))?;
+
         statements
             .into_iter()
             .map(|s| self.execute_stmt(s))
@@ -50,8 +51,9 @@ impl<T: GStore + GStoreMut> Glue<T> {
         execute(&mut self.storage, statement).await
     }
 
-    pub async fn execute_async<Sql: AsRef<str>>(&mut self, sql: Sql) -> Result<Vec<Payload>> {
+    pub async fn execute_async(&mut self, sql: impl AsRef<str>) -> Result<Vec<Payload>> {
         let statements = self.plan(sql).await?;
+
         let mut payloads = Vec::<Payload>::new();
         for statement in statements {
             let payload = self.execute_stmt_async(statement).await?;
