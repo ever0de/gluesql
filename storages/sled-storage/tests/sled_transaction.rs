@@ -37,11 +37,11 @@ macro_rules! test {
 
 macro_rules! test_idx {
     ($glue: ident $sql: literal, $idx: expr, $result: expr) => {
-        let statements = $glue.plan($sql).await.unwrap();
+        let mut statements = $glue.plan($sql).await.unwrap();
         assert_eq!(statements.len(), 1);
         let first = &statements[0];
         test_indexes(first, Some($idx));
-        assert_eq!($glue.execute_stmt(first), $result);
+        assert_eq!($glue.execute_stmt(statements.remove(0)), $result);
     };
 }
 
