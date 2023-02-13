@@ -137,7 +137,7 @@ impl<T> IntoControlFlow<T> for Result<T> {
     fn into_control_flow(self) -> ControlFlow<Result<T>, T> {
         match self {
             Ok(v) => ControlFlow::Continue(v),
-            e => ControlFlow::Break(e),
+            result @ Err(_) => ControlFlow::Break(result),
         }
     }
 }
