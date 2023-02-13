@@ -1,3 +1,5 @@
+use crate::ast::Select;
+
 use {
     super::{
         alter::{alter_table, create_index, create_table, drop_table},
@@ -18,7 +20,7 @@ use {
     },
     futures::stream::{StreamExt, TryStreamExt},
     serde::{Deserialize, Serialize},
-    std::{collections::HashMap, env::var, fmt::Debug, rc::Rc},
+    std::{collections::HashMap, env, fmt::Debug, rc::Rc},
     thiserror::Error as ThisError,
 };
 
@@ -296,7 +298,7 @@ async fn execute_inner<T: GStore + GStoreMut>(
         Statement::ShowVariable(variable) => match variable {
             Variable::Tables => {
                 let query = Query {
-                    body: SetExpr::Select(Box::new(crate::ast::Select {
+                    body: SetExpr::Select(Box::new(Select {
                         projection: vec![SelectItem::Expr {
                             expr: Expr::Identifier("TABLE_NAME".to_owned()),
                             label: "TABLE_NAME".to_owned(),
@@ -332,11 +334,10 @@ async fn execute_inner<T: GStore + GStoreMut>(
                 Ok(Payload::ShowVariable(PayloadVariable::Tables(table_names)))
             }
             Variable::Version => {
-                let version = var("CARGO_PKG_VERSION")
+                let version = env::var("CARGO_PKG_VERSION")
                     .unwrap_or_else(|_| env!("CARGO_PKG_VERSION").to_owned());
-                let payload = Payload::ShowVariable(PayloadVariable::Version(version));
 
-                Ok(payload)
+                Ok(Payload::ShowVariable(PayloadVariable::Version(version)))
             }
         },
     }
