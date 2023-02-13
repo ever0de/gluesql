@@ -68,7 +68,7 @@ impl<'a, T: GStore> Update<'a, T> {
         let context = RowContext::new(self.table_name, Cow::Borrowed(&row), None);
         let context = Some(Rc::new(context));
 
-        let assignments = stream::iter(self.fields.iter())
+        let assignments = stream::iter(self.fields)
             .then(|assignment| {
                 let Assignment {
                     id,
