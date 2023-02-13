@@ -108,7 +108,7 @@ impl<'a, T: GStore> Update<'a, T> {
                         None => evaluated.try_into()?,
                     };
 
-                    Ok::<_, Error>((id.as_ref(), value))
+                    Ok::<_, Error>((id, value))
                 }
             })
             .try_collect::<Vec<_>>()
@@ -122,7 +122,9 @@ impl<'a, T: GStore> Update<'a, T> {
                     .map(|(column, value)| {
                         assignments
                             .iter()
-                            .find_map(|(id, new_value)| (column == id).then_some(new_value.clone()))
+                            .find_map(|(id, new_value)| {
+                                (column == *id).then_some(new_value.clone())
+                            })
                             .unwrap_or(value)
                     })
                     .collect();
