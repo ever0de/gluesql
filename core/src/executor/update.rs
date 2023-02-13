@@ -48,7 +48,8 @@ impl<'a, T: GStore> Update<'a, T> {
 
                 if column_defs.iter().all(|col_def| &col_def.name != id) {
                     return Err(UpdateError::ColumnNotFound(id.to_owned()).into());
-                } else if column_defs.iter().any(|ColumnDef { name, unique, .. }| {
+                }
+                if column_defs.iter().any(|ColumnDef { name, unique, .. }| {
                     name == id && matches!(unique, Some(ColumnUniqueOption { is_primary: true }))
                 }) {
                     return Err(UpdateError::UpdateOnPrimaryKeyNotSupported(id.to_owned()).into());
@@ -110,7 +111,7 @@ impl<'a, T: GStore> Update<'a, T> {
                     Ok::<_, Error>((id.as_ref(), value))
                 }
             })
-            .try_collect::<Vec<(&str, Value)>>()
+            .try_collect::<Vec<_>>()
             .await?;
 
         Ok(match row {
