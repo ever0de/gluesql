@@ -102,7 +102,7 @@ async fn execute_inner<T: GStore + GStoreMut>(
         } => create_table(
             storage,
             &name,
-            columns.as_ref().map(Vec::as_slice),
+            columns.as_deref(),
             if_not_exists,
             &source,
             &engine,
