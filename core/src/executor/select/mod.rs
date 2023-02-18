@@ -134,11 +134,9 @@ pub async fn select_with_labels<'a, T: GStore>(
     let TableWithJoins { relation, joins } = &table_with_joins;
     let rows = fetch_relation_rows(storage, relation, &None)
         .await?
-        .map(move |row| {
-            let row = row?;
-            let alias = get_alias(relation);
-
-            Ok(RowContext::new(alias, Cow::Owned(row), None))
+        .map(move |row| match row {
+            Ok(row) => Ok(RowContext::new(get_alias(relation), &row, None)),
+            Err(err) => Err(err),
         });
 
     let join = Join::new(storage, joins, filter_context.as_ref().map(Rc::clone));

@@ -1,13 +1,15 @@
+use std::rc::Rc;
+
 use {
     crate::data::{Row, Value},
-    std::{borrow::Cow, fmt::Debug, rc::Rc},
+    std::fmt::Debug,
 };
 
 #[derive(Debug)]
 pub enum RowContext<'a> {
     Data {
         table_alias: &'a str,
-        row: Cow<'a, Row>,
+        row: &'a Row,
         next: Option<Rc<RowContext<'a>>>,
     },
     Bridge {
@@ -17,7 +19,7 @@ pub enum RowContext<'a> {
 }
 
 impl<'a> RowContext<'a> {
-    pub fn new(table_alias: &'a str, row: Cow<'a, Row>, next: Option<Rc<RowContext<'a>>>) -> Self {
+    pub fn new(table_alias: &'a str, row: &'a Row, next: Option<Rc<RowContext<'a>>>) -> Self {
         Self::Data {
             table_alias,
             row,

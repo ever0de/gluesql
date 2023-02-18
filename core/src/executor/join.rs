@@ -106,7 +106,7 @@ async fn join<'a, T: GStore>(
 
             Rc::new(RowContext::new(
                 table_alias,
-                Cow::Owned(init_row),
+                &init_row,
                 Some(Rc::clone(&project_context)),
             ))
         };
@@ -133,7 +133,7 @@ async fn join<'a, T: GStore>(
                 JoinExecutor::NestedLoop => {
                     let rows = fetch_relation_rows(storage, relation, &filter_context)
                         .await?
-                        .and_then(|row| future::ok(Cow::Owned(row)))
+                        .and_then(|row| future::ok(row))
                         .try_filter_map(move |row| {
                             check_where_clause(
                                 storage,
@@ -141,7 +141,7 @@ async fn join<'a, T: GStore>(
                                 filter_context.as_ref().map(Rc::clone),
                                 Some(&project_context).map(Rc::clone),
                                 where_clause,
-                                row,
+                                &row,
                             )
                         });
                     Rows::NestedLoop(rows)
@@ -163,7 +163,7 @@ async fn join<'a, T: GStore>(
                     match rows {
                         None => Rows::Empty(empty()),
                         Some(rows) => {
-                            let rows = stream::iter(rows.iter().map(Cow::Borrowed).map(Ok));
+                            let rows = stream::iter(rows.iter().map(Ok));
                             let rows = rows.try_filter_map(move |row| {
                                 check_where_clause(
                                     storage,
@@ -234,11 +234,8 @@ impl<'a> JoinExecutor<'a> {
                 let filter_context = filter_context.as_ref().map(Rc::clone);
 
                 async move {
-                    let filter_context = Rc::new(RowContext::new(
-                        get_alias(relation),
-                        Cow::Borrowed(&row),
-                        filter_context,
-                    ));
+                    let filter_context =
+                        Rc::new(RowContext::new(get_alias(relation), &row, filter_context));
 
                     let hash_key: Key = evaluate(
                         storage,
@@ -278,16 +275,19 @@ async fn check_where_clause<'a, 'b, T: GStore>(
     filter_context: Option<Rc<RowContext<'a>>>,
     project_context: Option<Rc<RowContext<'a>>>,
     where_clause: Option<&'a Expr>,
-    row: Cow<'b, Row>,
-) -> Result<Option<Rc<RowContext<'a>>>> {
-    let filter_context = RowContext::new(table_alias, Cow::Borrowed(&row), filter_context);
+    row: &'b Row,
+) -> Result<Option<Rc<RowContext<'a>>>>
+where
+    'b: 'a,
+{
+    let filter_context = RowContext::new(table_alias, row, filter_context);
     let filter_context = Some(Rc::new(filter_context));
 
     match where_clause {
         Some(expr) => check_expr(storage, filter_context, None, expr).await?,
         None => true,
     }
-    .then(|| RowContext::new(table_alias, Cow::Owned(row.into_owned()), project_context))
+    .then(move || RowContext::new(table_alias, row, project_context))
     .map(Rc::new)
     .map(Ok)
     .transpose()
