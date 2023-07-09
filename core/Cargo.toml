@@ -39,3 +39,7 @@ features = ["v4", "js"]
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies.uuid]
 version = "1"
 features = ["v4"]
+
+[features]
+default = ["send"]
+send = []

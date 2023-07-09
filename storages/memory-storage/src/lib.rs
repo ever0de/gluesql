@@ -34,7 +34,7 @@ pub struct MemoryStorage {
     pub functions: HashMap<String, StructCustomFunction>,
 }
 
-#[async_trait(?Send)]
+#[async_trait]
 impl CustomFunction for MemoryStorage {
     async fn fetch_function(&self, func_name: &str) -> Result<Option<&StructCustomFunction>> {
         Ok(self.functions.get(&func_name.to_uppercase()))
@@ -44,7 +44,7 @@ impl CustomFunction for MemoryStorage {
     }
 }
 
-#[async_trait(?Send)]
+#[async_trait]
 impl CustomFunctionMut for MemoryStorage {
     async fn insert_function(&mut self, func: StructCustomFunction) -> Result<()> {
         self.functions.insert(func.func_name.to_uppercase(), func);
@@ -57,7 +57,7 @@ impl CustomFunctionMut for MemoryStorage {
     }
 }
 
-#[async_trait(?Send)]
+#[async_trait]
 impl Store for MemoryStorage {
     async fn fetch_all_schemas(&self) -> Result<Vec<Schema>> {
         let mut schemas = self
@@ -95,7 +95,7 @@ impl Store for MemoryStorage {
     }
 }
 
-#[async_trait(?Send)]
+#[async_trait]
 impl StoreMut for MemoryStorage {
     async fn insert_schema(&mut self, schema: &Schema) -> Result<()> {
         let created = HashMap::from([(

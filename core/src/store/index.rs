@@ -1,5 +1,5 @@
 use {
-    super::RowIter,
+    super::{declare_trait, RowIter},
     crate::{
         ast::{IndexOperator, OrderByExpr},
         data::Value,
@@ -38,37 +38,61 @@ pub enum IndexError {
     ConflictOnIndexDataDeleteSync,
 }
 
-#[async_trait(?Send)]
-pub trait Index {
-    async fn scan_indexed_data(
-        &self,
-        _table_name: &str,
-        _index_name: &str,
-        _asc: Option<bool>,
-        _cmp_value: Option<(&IndexOperator, Value)>,
-    ) -> Result<RowIter> {
-        Err(Error::StorageMsg(
-            "[Storage] Index::scan_indexed_data is not supported".to_owned(),
-        ))
-    }
+macro_rules! index {
+    (#[$attr: meta]) => {
+        declare_trait!(
+            "By implementing `Index` trait, you can run `CREATE INDEX`, `DROP INDEX`, `SELECT` query"
+            #[$attr]
+            trait Index {
+                async fn scan_indexed_data(
+                    &self,
+                    _table_name: &str,
+                    _index_name: &str,
+                    _asc: Option<bool>,
+                    _cmp_value: Option<(&IndexOperator, Value)>,
+                ) -> Result<RowIter> {
+                    Err(Error::StorageMsg(
+                        "[Storage] Index::scan_indexed_data is not supported".to_owned(),
+                    ))
+                }
+            }
+        );
+    };
 }
 
-#[async_trait(?Send)]
-pub trait IndexMut {
-    async fn create_index(
-        &mut self,
-        _table_name: &str,
-        _index_name: &str,
-        _column: &OrderByExpr,
-    ) -> Result<()> {
-        let msg = "[Storage] Index::create_index is not supported".to_owned();
+#[cfg(not(feature = "send"))]
+index!(#[async_trait(?Send)]);
+#[cfg(feature = "send")]
+index!(#[async_trait]);
 
-        Err(Error::StorageMsg(msg))
-    }
+macro_rules! index_mut {
+    (#[$attr: meta]) => {
+        declare_trait!(
+            "By implementing `IndexMut` trait, you can run `CREATE INDEX`, `DROP INDEX`, `SELECT` query"
+            #[$attr]
+            trait IndexMut {
+                async fn create_index(
+                    &mut self,
+                    _table_name: &str,
+                    _index_name: &str,
+                    _column: &OrderByExpr,
+                ) -> Result<()> {
+                    Err(Error::StorageMsg(
+                        "[Storage] Index::create_index is not supported".to_owned(),
+                    ))
+                }
 
-    async fn drop_index(&mut self, _table_name: &str, _index_name: &str) -> Result<()> {
-        let msg = "[Storage] Index::drop_index is not supported".to_owned();
-
-        Err(Error::StorageMsg(msg))
-    }
+                async fn drop_index(&mut self, _table_name: &str, _index_name: &str) -> Result<()> {
+                    Err(Error::StorageMsg(
+                        "[Storage] Index::drop_index is not supported".to_owned(),
+                    ))
+                }
+            }
+        );
+    };
 }
+
+#[cfg(not(feature = "send"))]
+index_mut!(#[async_trait(?Send)]);
+#[cfg(feature = "send")]
+index_mut!(#[async_trait]);

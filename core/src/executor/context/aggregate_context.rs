@@ -2,11 +2,11 @@ use {
     super::RowContext,
     crate::{ast::Aggregate, data::Value},
     im_rc::HashMap,
-    std::{fmt::Debug, rc::Rc},
+    std::{fmt::Debug, sync::Arc},
 };
 
 #[derive(Debug)]
 pub struct AggregateContext<'a> {
     pub aggregated: Option<HashMap<&'a Aggregate, Value>>,
-    pub next: Rc<RowContext<'a>>,
+    pub next: Arc<RowContext<'a>>,
 }

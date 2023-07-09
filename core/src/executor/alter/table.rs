@@ -11,8 +11,9 @@ use {
     futures::stream::TryStreamExt,
 };
 
-pub async fn create_table<T: GStore + GStoreMut>(
-    storage: &mut T,
+pub async fn create_table(
+    #[cfg(feature = "send")] storage: &mut (impl GStore + GStoreMut + Send + Sync),
+    #[cfg(not(feature = "send"))] storage: &mut (impl GStore + GStoreMut),
     target_table_name: &str,
     column_defs: Option<&[ColumnDef]>,
     if_not_exists: bool,

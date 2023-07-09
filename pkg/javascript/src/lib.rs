@@ -8,7 +8,7 @@ use {
     js_sys::Promise,
     memory_storage::MemoryStorage,
     payload::convert,
-    std::{cell::RefCell, rc::Rc},
+    std::{cell::RefCell, sync::Arc},
     wasm_bindgen::prelude::*,
     wasm_bindgen_futures::future_to_promise,
 };
@@ -29,10 +29,10 @@ extern "C" {
 #[wasm_bindgen]
 pub struct Glue {
     #[cfg(not(feature = "nodejs"))]
-    storage: Rc<RefCell<Option<CompositeStorage>>>,
+    storage: Arc<RefCell<Option<CompositeStorage>>>,
 
     #[cfg(feature = "nodejs")]
-    storage: Rc<RefCell<Option<MemoryStorage>>>,
+    storage: Arc<RefCell<Option<MemoryStorage>>>,
 }
 
 impl Default for Glue {
@@ -63,7 +63,7 @@ impl Glue {
         #[cfg(feature = "nodejs")]
         let storage = MemoryStorage::default();
 
-        let storage = Rc::new(RefCell::new(Some(storage)));
+        let storage = Arc::new(RefCell::new(Some(storage)));
 
         debug("[GlueSQL] hello :)");
 
@@ -73,7 +73,7 @@ impl Glue {
     #[cfg(not(feature = "nodejs"))]
     #[wasm_bindgen(js_name = loadIndexedDB)]
     pub fn load_indexeddb(&mut self) -> Promise {
-        let cell = Rc::clone(&self.storage);
+        let cell = Arc::clone(&self.storage);
 
         future_to_promise(async move {
             let mut storage = cell.replace(None).unwrap();
@@ -105,7 +105,7 @@ impl Glue {
     #[cfg(not(feature = "nodejs"))]
     #[wasm_bindgen(js_name = setDefaultEngine)]
     pub fn set_default_engine(&mut self, default_engine: String) -> Result<(), JsValue> {
-        let cell = Rc::clone(&self.storage);
+        let cell = Arc::clone(&self.storage);
         let mut storage = cell.replace(None).unwrap();
 
         let result = {
@@ -132,7 +132,7 @@ impl Glue {
     }
 
     pub fn query(&mut self, sql: String) -> Promise {
-        let cell = Rc::clone(&self.storage);
+        let cell = Arc::clone(&self.storage);
 
         future_to_promise(async move {
             let queries = parse(&sql).map_err(|error| JsValue::from_str(&format!("{error}")))?;

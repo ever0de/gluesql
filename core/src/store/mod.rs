@@ -36,29 +36,67 @@ use {
 
 pub type RowIter = Box<dyn Iterator<Item = Result<(Key, DataRow)>>>;
 
-/// By implementing `Store` trait, you can run `SELECT` query.
-#[async_trait(?Send)]
-pub trait Store {
-    async fn fetch_schema(&self, table_name: &str) -> Result<Option<Schema>>;
-
-    async fn fetch_all_schemas(&self) -> Result<Vec<Schema>>;
-
-    async fn fetch_data(&self, table_name: &str, key: &Key) -> Result<Option<DataRow>>;
-
-    async fn scan_data(&self, table_name: &str) -> Result<RowIter>;
+macro_rules! declare_trait {
+    (#[$attr: meta] trait $name: ident $methods:tt) => {
+        #[$attr]
+        pub trait $name $methods
+    };
+    (
+        $doc_comment: literal
+        #[$attr: meta] trait $name: ident $methods:tt
+    ) => {
+        #[doc = $doc_comment]
+        #[$attr]
+        pub trait $name $methods
+    }
 }
 
-/// By implementing `StoreMut` trait,
-/// you can run `INSERT`, `CREATE TABLE`, `DELETE`, `UPDATE` and `DROP TABLE` queries.
-#[async_trait(?Send)]
-pub trait StoreMut {
-    async fn insert_schema(&mut self, schema: &Schema) -> Result<()>;
+pub(super) use declare_trait;
 
-    async fn delete_schema(&mut self, table_name: &str) -> Result<()>;
+macro_rules! store {
+    (#[$attr: meta]) => {
+        declare_trait!(
+            "By implementing `Store` trait, you can run `SELECT` query"
+            #[$attr]
+            trait Store {
+                async fn fetch_schema(&self, table_name: &str) -> Result<Option<Schema>>;
 
-    async fn append_data(&mut self, table_name: &str, rows: Vec<DataRow>) -> Result<()>;
+                async fn fetch_all_schemas(&self) -> Result<Vec<Schema>>;
 
-    async fn insert_data(&mut self, table_name: &str, rows: Vec<(Key, DataRow)>) -> Result<()>;
+                async fn fetch_data(&self, table_name: &str, key: &Key) -> Result<Option<DataRow>>;
 
-    async fn delete_data(&mut self, table_name: &str, keys: Vec<Key>) -> Result<()>;
+                async fn scan_data(&self, table_name: &str) -> Result<RowIter>;
+            }
+        );
+    };
 }
+
+#[cfg(not(feature = "send"))]
+store!(#[async_trait(?Send)]);
+#[cfg(feature = "send")]
+store!(#[async_trait]);
+
+macro_rules! store_mut {
+    ( #[$attr : meta] ) => {
+        declare_trait ! (
+            "By implementing `StoreMut` trait, you can run `INSERT`, `CREATE TABLE`, `DELETE`, `UPDATE` and `DROP TABLE` queries."
+            #[$attr]
+            trait StoreMut {
+                async fn insert_schema(&mut self, schema: &Schema) -> Result<()>;
+
+                async fn delete_schema(&mut self, table_name: &str) -> Result<()>;
+
+                async fn append_data(&mut self, table_name: &str, rows: Vec<DataRow>) -> Result<()>;
+
+                async fn insert_data(&mut self, table_name: &str, rows: Vec<(Key, DataRow)>) -> Result<()>;
+
+                async fn delete_data(&mut self, table_name: &str, keys: Vec<Key>) -> Result<()>;
+            }
+        );
+    };
+}
+
+#[cfg(not(feature = "send"))]
+store_mut!(#[async_trait(?Send)]);
+#[cfg(feature = "send")]
+store_mut!(#[async_trait]);

@@ -1,4 +1,5 @@
 use {
+    super::declare_trait,
     crate::{
         ast::ColumnDef,
         result::{Error, Result},
@@ -30,39 +31,41 @@ pub enum AlterTableError {
     SchemalessTableFound(String),
 }
 
-#[async_trait(?Send)]
-pub trait AlterTable {
-    async fn rename_schema(&mut self, _table_name: &str, _new_table_name: &str) -> Result<()> {
-        let msg = "[Storage] AlterTable::rename_schema is not supported".to_owned();
+macro_rules! alter_table {
+    (#[$attr: meta]) => {
+        declare_trait!(
+            "By implementing `AlterTable` trait, you can run `ALTER TABLE` query"
+            #[$attr]
+            trait AlterTable {
+                async fn rename_schema(&mut self, _: &str, _: &str) -> Result<()> {
+                    Err(Error::StorageMsg(
+                        "[Storage] AlterTable::rename_schema is not supported".to_owned(),
+                    ))
+                }
 
-        Err(Error::StorageMsg(msg))
-    }
+                async fn rename_column(&mut self, _: &str, _: &str, _: &str) -> Result<()> {
+                    Err(Error::StorageMsg(
+                        "[Storage] AlterTable::rename_column is not supported".to_owned(),
+                    ))
+                }
 
-    async fn rename_column(
-        &mut self,
-        _table_name: &str,
-        _old_column_name: &str,
-        _new_column_name: &str,
-    ) -> Result<()> {
-        let msg = "[Storage] AlterTable::rename_column is not supported".to_owned();
+                async fn add_column(&mut self, _: &str, _: &ColumnDef) -> Result<()> {
+                    Err(Error::StorageMsg(
+                        "[Storage] AlterTable::add_column is not supported".to_owned(),
+                    ))
+                }
 
-        Err(Error::StorageMsg(msg))
-    }
-
-    async fn add_column(&mut self, _table_name: &str, _column_def: &ColumnDef) -> Result<()> {
-        let msg = "[Storage] AlterTable::add_column is not supported".to_owned();
-
-        Err(Error::StorageMsg(msg))
-    }
-
-    async fn drop_column(
-        &mut self,
-        _table_name: &str,
-        _column_name: &str,
-        _if_exists: bool,
-    ) -> Result<()> {
-        let msg = "[Storage] AlterTable::drop_column is not supported".to_owned();
-
-        Err(Error::StorageMsg(msg))
-    }
+                async fn drop_column(&mut self, _: &str, _: &str, _: bool) -> Result<()> {
+                    Err(Error::StorageMsg(
+                        "[Storage] AlterTable::drop_column is not supported".to_owned(),
+                    ))
+                }
+            }
+        );
+    };
 }
+
+#[cfg(not(feature = "send"))]
+alter_table!(#[async_trait(?Send)]);
+#[cfg(feature = "send")]
+alter_table!(#[async_trait]);

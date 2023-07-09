@@ -14,10 +14,43 @@ use {
     },
 };
 
-pub struct Glue<T: GStore + GStoreMut> {
+pub struct Glue<T> {
     pub storage: T,
 }
 
+#[cfg(feature = "send")]
+impl<T: GStore + GStoreMut + Send + Sync> Glue<T> {
+    pub fn new(storage: T) -> Self {
+        Self { storage }
+    }
+
+    pub async fn plan<Sql: AsRef<str>>(&mut self, sql: Sql) -> Result<Vec<Statement>> {
+        let parsed = parse(sql)?;
+        let storage = &self.storage;
+        stream::iter(parsed)
+            .map(|p| translate(&p))
+            .then(|statement| async move { plan(storage, statement?).await })
+            .try_collect()
+            .await
+    }
+
+    pub async fn execute_stmt(&mut self, statement: &Statement) -> Result<Payload> {
+        execute(&mut self.storage, statement).await
+    }
+
+    pub async fn execute<Sql: AsRef<str>>(&mut self, sql: Sql) -> Result<Vec<Payload>> {
+        let statements = self.plan(sql).await?;
+        let mut payloads = Vec::<Payload>::new();
+        for statement in statements.iter() {
+            let payload = self.execute_stmt(statement).await?;
+            payloads.push(payload);
+        }
+
+        Ok(payloads)
+    }
+}
+
+#[cfg(not(feature = "send"))]
 impl<T: GStore + GStoreMut> Glue<T> {
     pub fn new(storage: T) -> Self {
         Self { storage }

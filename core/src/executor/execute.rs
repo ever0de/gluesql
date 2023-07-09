@@ -20,7 +20,7 @@ use {
     },
     futures::stream::{StreamExt, TryStreamExt},
     serde::{Deserialize, Serialize},
-    std::{collections::HashMap, env::var, fmt::Debug, rc::Rc},
+    std::{collections::HashMap, env::var, fmt::Debug, sync::Arc},
     thiserror::Error as ThisError,
 };
 
@@ -60,8 +60,9 @@ pub enum PayloadVariable {
     Version(String),
 }
 
-pub async fn execute<T: GStore + GStoreMut>(
-    storage: &mut T,
+pub async fn execute(
+    #[cfg(feature = "send")] storage: &mut (impl GStore + GStoreMut + Send + Sync),
+    #[cfg(not(feature = "send"))] storage: &mut (impl GStore + GStoreMut),
     statement: &Statement,
 ) -> Result<Payload> {
     if matches!(
@@ -88,8 +89,9 @@ pub async fn execute<T: GStore + GStoreMut>(
     }
 }
 
-async fn execute_inner<T: GStore + GStoreMut>(
-    storage: &mut T,
+async fn execute_inner(
+    #[cfg(feature = "send")] storage: &mut (impl GStore + GStoreMut + Send + Sync),
+    #[cfg(not(feature = "send"))] storage: &mut (impl GStore + GStoreMut),
     statement: &Statement,
 ) -> Result<Payload> {
     match statement {
@@ -210,7 +212,7 @@ async fn execute_inner<T: GStore + GStoreMut>(
             table_name,
             selection,
         } => {
-            let columns = fetch_columns(storage, table_name).await?.map(Rc::from);
+            let columns = fetch_columns(storage, table_name).await?.map(Arc::from);
             let keys = fetch(storage, table_name, columns, selection.as_ref())
                 .await?
                 .map_ok(|(key, _)| key)

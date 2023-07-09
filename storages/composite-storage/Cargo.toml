@@ -9,7 +9,8 @@ repository.workspace = true
 documentation.workspace = true
 
 [dependencies]
-gluesql-core.workspace = true
+gluesql-core = { workspace = true, default-features = false }
+
 async-trait = "0.1"
 serde = { version = "1", features = ["derive"] }
 futures = "0.3"

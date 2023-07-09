@@ -11,8 +11,9 @@ use {
 };
 
 #[async_trait(?Send)]
-pub trait Execute<T: GStore + GStoreMut>
+pub trait Execute<T>
 where
+    T: GStore + GStoreMut + Send + Sync,
     Self: Sized + Build,
 {
     async fn execute(self, glue: &mut Glue<T>) -> Result<Payload> {
@@ -23,7 +24,7 @@ where
 }
 
 #[async_trait(?Send)]
-impl<T: GStore + GStoreMut, B: Build> Execute<T> for B {}
+impl<T: GStore + GStoreMut + Send + Sync, B: Build> Execute<T> for B {}
 
 impl Build for Statement {
     fn build(self) -> Result<Statement> {

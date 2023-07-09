@@ -23,7 +23,7 @@ use {
     },
     async_recursion::async_recursion,
     futures::stream::{self, Stream, StreamExt, TryStreamExt},
-    std::{borrow::Cow, rc::Rc},
+    std::{borrow::Cow, sync::Arc},
     utils::Vector,
 };
 
@@ -32,7 +32,7 @@ async fn rows_with_labels(exprs_list: &[Vec<Expr>]) -> Result<(Vec<Row>, Vec<Str
     let labels = (1..=first_len)
         .map(|i| format!("column{}", i))
         .collect::<Vec<_>>();
-    let columns = Rc::from(labels.clone());
+    let columns = Arc::from(labels.clone());
 
     let mut column_types = vec![None; first_len];
     let mut rows = Vec::with_capacity(exprs_list.len());
@@ -61,7 +61,7 @@ async fn rows_with_labels(exprs_list: &[Vec<Expr>]) -> Result<(Vec<Row>, Vec<Str
         }
 
         rows.push(Row::Vec {
-            columns: Rc::clone(&columns),
+            columns: Arc::clone(&columns),
             values,
         });
     }
@@ -100,10 +100,11 @@ async fn sort_stateless(rows: Vec<Row>, order_by: &[OrderByExpr]) -> Result<Vec<
 }
 
 #[async_recursion(?Send)]
-pub async fn select_with_labels<'a, T: GStore>(
-    storage: &'a T,
+pub async fn select_with_labels<'a>(
+    #[cfg(feature = "send")] storage: &'a (impl GStore + Send + Sync),
+    #[cfg(not(feature = "send"))] storage: &'a impl GStore,
     query: &'a Query,
-    filter_context: Option<Rc<RowContext<'a>>>,
+    filter_context: Option<Arc<RowContext<'a>>>,
 ) -> Result<(Option<Vec<String>>, impl Stream<Item = Result<Row>> + 'a)> {
     #[derive(futures_enum::Stream)]
     enum Row<S1, S2> {
@@ -140,34 +141,34 @@ pub async fn select_with_labels<'a, T: GStore>(
             Ok(RowContext::new(alias, Cow::Owned(row), None))
         });
 
-    let join = Join::new(storage, joins, filter_context.as_ref().map(Rc::clone));
+    let join = Join::new(storage, joins, filter_context.as_ref().map(Arc::clone));
     let aggregate = Aggregator::new(
         storage,
         projection,
         group_by,
         having.as_ref(),
-        filter_context.as_ref().map(Rc::clone),
+        filter_context.as_ref().map(Arc::clone),
     );
-    let filter = Rc::new(Filter::new(
+    let filter = Arc::new(Filter::new(
         storage,
         where_clause.as_ref(),
-        filter_context.as_ref().map(Rc::clone),
+        filter_context.as_ref().map(Arc::clone),
         None,
     ));
     let limit = Limit::new(query.limit.as_ref(), query.offset.as_ref()).await?;
     let sort = Sort::new(
         storage,
-        filter_context.as_ref().map(Rc::clone),
+        filter_context.as_ref().map(Arc::clone),
         &query.order_by,
     );
 
     let rows = join.apply(rows).await?;
     let rows = rows.try_filter_map(move |project_context| {
-        let filter = Rc::clone(&filter);
+        let filter = Arc::clone(&filter);
 
         async move {
             filter
-                .check(Rc::clone(&project_context))
+                .check(Arc::clone(&project_context))
                 .await
                 .map(|pass| pass.then_some(project_context))
         }
@@ -177,19 +178,23 @@ pub async fn select_with_labels<'a, T: GStore>(
 
     let labels = fetch_labels(storage, relation, joins, projection)
         .await?
-        .map(Rc::from);
+        .map(Arc::from);
 
-    let project = Rc::new(Project::new(storage, filter_context, projection));
-    let project_labels = labels.as_ref().map(Rc::clone);
+    let project = Arc::new(Project::new(storage, filter_context, projection));
+    let project_labels = labels.as_ref().map(Arc::clone);
     let rows = rows.and_then(move |aggregate_context| {
-        let labels = project_labels.as_ref().map(Rc::clone);
-        let project = Rc::clone(&project);
+        let labels = project_labels.as_ref().map(Arc::clone);
+        let project = Arc::clone(&project);
         let AggregateContext { aggregated, next } = aggregate_context;
-        let aggregated = aggregated.map(Rc::new);
+        let aggregated = aggregated.map(Arc::new);
 
         async move {
             let row = project
-                .apply(aggregated.as_ref().map(Rc::clone), labels, Rc::clone(&next))
+                .apply(
+                    aggregated.as_ref().map(Arc::clone),
+                    labels,
+                    Arc::clone(&next),
+                )
                 .await?;
 
             Ok((aggregated, next, row))
@@ -203,10 +208,11 @@ pub async fn select_with_labels<'a, T: GStore>(
     Ok((labels, Row::Select(rows)))
 }
 
-pub async fn select<'a, T: GStore>(
-    storage: &'a T,
+pub async fn select<'a>(
+    #[cfg(feature = "send")] storage: &'a (impl GStore + Send + Sync),
+    #[cfg(not(feature = "send"))] storage: &'a impl GStore,
     query: &'a Query,
-    filter_context: Option<Rc<RowContext<'a>>>,
+    filter_context: Option<Arc<RowContext<'a>>>,
 ) -> Result<impl Stream<Item = Result<Row>> + 'a> {
     select_with_labels(storage, query, filter_context)
         .await
