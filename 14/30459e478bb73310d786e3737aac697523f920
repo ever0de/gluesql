@@ -1,0 +1,27 @@
+core/src/translate/query.rs
+  f655f86a2fb449dc 573-600
+test-suite/src/union.rs
+  f655f86a2fb449dc 1-7,86-138
+test-suite/src/schemaless/basic.rs
+  f655f86a2fb449dc 130-146
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.3.4",
+  "base_commit_sha": "1430459e478bb73310d786e3737aac697523f920",
+  "prompts": {
+    "f655f86a2fb449dc": {
+      "agent_id": {
+        "tool": "github-copilot",
+        "id": "e549627e-c61a-4b94-8594-2bd2b38459c2",
+        "model": "copilot/claude-sonnet-4.6"
+      },
+      "human_author": "Jiseok CHOI",
+      "messages": [],
+      "total_additions": 0,
+      "total_deletions": 0,
+      "accepted_lines": 111,
+      "overriden_lines": 0
+    }
+  }
+}
