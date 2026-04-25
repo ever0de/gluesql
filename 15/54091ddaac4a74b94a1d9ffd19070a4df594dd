@@ -1,0 +1,64 @@
+core/src/executor/alter/table.rs
+  f655f86a2fb449dc 82-92
+core/src/plan/schemaless/validate.rs
+  f655f86a2fb449dc 77-92
+core/src/plan/schemaless/query.rs
+  f655f86a2fb449dc 41
+core/src/plan/schema.rs
+  f655f86a2fb449dc 14,17-18,103-110,112-134,136-147,149-150
+core/src/ast/query.rs
+  f655f86a2fb449dc 22-26,260-268
+core/src/translate/query.rs
+  f655f86a2fb449dc 18-19,97-107,471-572
+core/src/plan/aggregate.rs
+  f655f86a2fb449dc 107-124
+core/src/plan/validate.rs
+  f655f86a2fb449dc 134
+core/src/plan/join.rs
+  f655f86a2fb449dc 51-77
+core/src/executor/select.rs
+  f655f86a2fb449dc 122-174,194-196
+core/src/executor/insert.rs
+  f655f86a2fb449dc 154,307
+core/src/plan/index.rs
+  f655f86a2fb449dc 50-76
+core/src/plan/primary_key.rs
+  f655f86a2fb449dc 43-69
+core/src/plan/expr/evaluable.rs
+  f655f86a2fb449dc 55-69
+core/src/executor/fetch.rs
+  f655f86a2fb449dc 494-509
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.3.4",
+  "base_commit_sha": "1554091ddaac4a74b94a1d9ffd19070a4df594dd",
+  "prompts": {
+    "d55e9899ea71fcbd": {
+      "agent_id": {
+        "tool": "github-copilot",
+        "id": "872fe037-c63e-48c6-aa9f-b87f37b905a3",
+        "model": "copilot/claude-sonnet-4.6"
+      },
+      "human_author": "Jiseok CHOI",
+      "messages": [],
+      "total_additions": 33,
+      "total_deletions": 1,
+      "accepted_lines": 0,
+      "overriden_lines": 0
+    },
+    "f655f86a2fb449dc": {
+      "agent_id": {
+        "tool": "github-copilot",
+        "id": "e549627e-c61a-4b94-8594-2bd2b38459c2",
+        "model": "copilot/claude-sonnet-4.6"
+      },
+      "human_author": "Jiseok CHOI",
+      "messages": [],
+      "total_additions": 1103,
+      "total_deletions": 832,
+      "accepted_lines": 560,
+      "overriden_lines": 0
+    }
+  }
+}
