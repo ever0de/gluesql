@@ -1,0 +1,33 @@
+core/src/ast_builder/select/limit.rs
+  f655f86a2fb449dc 8,26,42,47-49
+core/src/ast_builder.rs
+  f655f86a2fb449dc 24,77
+core/src/ast_builder/select/order_by.rs
+  f655f86a2fb449dc 8,25,40,45-47
+core/src/ast_builder/query.rs
+  f655f86a2fb449dc 7,13,35-40,91-96,98,131,146-147,286-290,294-298
+core/src/ast_builder/set_expr.rs
+  f655f86a2fb449dc 1-212
+core/src/ast_builder/select/offset.rs
+  f655f86a2fb449dc 8,26,42,47-49
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.3.4",
+  "base_commit_sha": "119eae5cedcc79c4fda378512fd9518387f8b404",
+  "prompts": {
+    "f655f86a2fb449dc": {
+      "agent_id": {
+        "tool": "github-copilot",
+        "id": "e549627e-c61a-4b94-8594-2bd2b38459c2",
+        "model": "copilot/claude-sonnet-4.6"
+      },
+      "human_author": "Jiseok CHOI",
+      "messages": [],
+      "total_additions": 274,
+      "total_deletions": 106,
+      "accepted_lines": 275,
+      "overriden_lines": 0
+    }
+  }
+}
