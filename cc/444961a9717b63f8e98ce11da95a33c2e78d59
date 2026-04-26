@@ -1,0 +1,23 @@
+core/src/ast_builder/set_expr.rs
+  f655f86a2fb449dc 217-218,222-232,236-237,240-244
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.3.4",
+  "base_commit_sha": "cc444961a9717b63f8e98ce11da95a33c2e78d59",
+  "prompts": {
+    "f655f86a2fb449dc": {
+      "agent_id": {
+        "tool": "github-copilot",
+        "id": "e549627e-c61a-4b94-8594-2bd2b38459c2",
+        "model": "copilot/claude-sonnet-4.6"
+      },
+      "human_author": "Jiseok CHOI",
+      "messages": [],
+      "total_additions": 20,
+      "total_deletions": 67,
+      "accepted_lines": 26,
+      "overriden_lines": 0
+    }
+  }
+}
