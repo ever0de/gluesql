@@ -1,0 +1,27 @@
+core/src/executor/select.rs
+  s_06159989267b82::t_6719bb0382cf01 24-26,108-117,121,123-126,130-144,146-159,161-162,164-171,174-183,185-200,202-203,206-261,267-289,291-318,320,322-336,339,346,350
+core/src/executor/alter/table.rs
+  s_06159989267b82::t_d09745cc288339 19
+  s_06159989267b82::t_6719bb0382cf01 71-72,84-85
+core/src/executor/execute.rs
+  s_06159989267b82::t_682750309d3e60 270
+  s_06159989267b82::t_adf9b8c8cc8373 271,341
+core/Cargo.toml
+  s_06159989267b82::t_d31ec5b08afb8d 16
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.4",
+  "base_commit_sha": "29afe05a993efbad3a70d40f8a518bcd47910ee4",
+  "prompts": {},
+  "sessions": {
+    "s_06159989267b82": {
+      "agent_id": {
+        "tool": "github-copilot",
+        "id": "42471f81-ff73-4a89-9437-73369cc1bc01",
+        "model": "unknown"
+      },
+      "human_author": "Jiseok CHOI <jiseok.dev@gmail.com>"
+    }
+  }
+}
