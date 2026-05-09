@@ -1,0 +1,19 @@
+storages/sled-storage/src/planner.rs
+  s_06159989267b82::t_85b3e22d4d7c92 9,20
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.4",
+  "base_commit_sha": "df6033fe797c439b426ccf9b85afd006cf5b28f5",
+  "prompts": {},
+  "sessions": {
+    "s_06159989267b82": {
+      "agent_id": {
+        "tool": "github-copilot",
+        "id": "42471f81-ff73-4a89-9437-73369cc1bc01",
+        "model": "unknown"
+      },
+      "human_author": "Jiseok CHOI <jiseok.dev@gmail.com>"
+    }
+  }
+}
