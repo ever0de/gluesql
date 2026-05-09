@@ -1,0 +1,21 @@
+core/src/executor/select.rs
+  s_7fe3a9c5849a1d::t_54b78a0c71ecf9 222-225,227-237,239-253,256-260,266
+test-suite/src/union.rs
+  ai_agent 257-303
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.4",
+  "base_commit_sha": "9995b81b282b43bc8e2df5ec31d6df3ad71c06c6",
+  "prompts": {},
+  "sessions": {
+    "s_7fe3a9c5849a1d": {
+      "agent_id": {
+        "tool": "github-copilot",
+        "id": "dbe9d5b9-040f-4114-be97-987208ae2d07",
+        "model": "unknown"
+      },
+      "human_author": "Jiseok CHOI <jiseok.dev@gmail.com>"
+    }
+  }
+}
