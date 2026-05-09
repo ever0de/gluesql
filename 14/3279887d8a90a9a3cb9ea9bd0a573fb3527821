@@ -1,0 +1,9 @@
+core/src/executor/select.rs
+  ai_agent 222,238
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.4",
+  "base_commit_sha": "143279887d8a90a9a3cb9ea9bd0a573fb3527821",
+  "prompts": {}
+}
