@@ -1,0 +1,22 @@
+core/src/plan/validate.rs
+  s_06159989267b82::t_3268a84f4c7ca5 207-212
+  s_06159989267b82::t_df34f313ef6379 24-25,31-69
+test-suite/src/tester.rs
+  s_06159989267b82::t_a142528c3d958e 55-62,64-69,71-78,80-81
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.4",
+  "base_commit_sha": "201b59a6206cbeb0d74bda7ef1cc1890dec19112",
+  "prompts": {},
+  "sessions": {
+    "s_06159989267b82": {
+      "agent_id": {
+        "tool": "github-copilot",
+        "id": "42471f81-ff73-4a89-9437-73369cc1bc01",
+        "model": "unknown"
+      },
+      "human_author": "Jiseok CHOI <jiseok.dev@gmail.com>"
+    }
+  }
+}
