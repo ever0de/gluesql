@@ -1,0 +1,9 @@
+test-suite/src/union.rs
+  ai_agent 273,281-282
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.4",
+  "base_commit_sha": "17e1f3699e65e6d62e05d14f433e1277cf9c777f",
+  "prompts": {}
+}
