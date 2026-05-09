@@ -1,0 +1,28 @@
+core/src/plan/error.rs
+  s_06159989267b82::t_7dfb3206f080c2 18-26
+core/src/plan/union.rs
+  s_06159989267b82::t_81e7c41becd286 80-93,194-220
+  s_06159989267b82::t_339db64b653960 112
+  s_06159989267b82::t_5be9f47a3df5ec 8
+  s_06159989267b82::t_5eade713693565 49-57,139-146
+core/src/plan.rs
+  s_06159989267b82::t_fdad35a0559eff 11,18
+core/src/store/planner.rs
+  s_06159989267b82::t_fdad35a0559eff 7,19
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.4",
+  "base_commit_sha": "69591954e02183fe951fe5161b7f434346440f5c",
+  "prompts": {},
+  "sessions": {
+    "s_06159989267b82": {
+      "agent_id": {
+        "tool": "github-copilot",
+        "id": "42471f81-ff73-4a89-9437-73369cc1bc01",
+        "model": "unknown"
+      },
+      "human_author": "Jiseok CHOI <jiseok.dev@gmail.com>"
+    }
+  }
+}
