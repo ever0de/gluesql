@@ -1,0 +1,11 @@
+core/src/executor/select.rs
+  ai_agent 200-220
+test-suite/src/union.rs
+  ai_agent 82-86
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.4",
+  "base_commit_sha": "76323e1a49c5280c05593e160eee0b83ba3e69ef",
+  "prompts": {}
+}
