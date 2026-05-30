@@ -1,0 +1,21 @@
+core/src/plan/union.rs
+  s_4cb5fea885060e::t_a0a6682c388f14 538-550
+  s_4cb5fea885060e::t_2a47059bc05e19 51,197
+  s_4cb5fea885060e::t_8d5c14a4539c6e 193-196,198-214
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "1f6de93572281164af8757b364e6571ee04b4143",
+  "prompts": {},
+  "sessions": {
+    "s_4cb5fea885060e": {
+      "agent_id": {
+        "tool": "github-copilot",
+        "id": "f95b9771-3709-4ba0-961a-ffd6068e5750",
+        "model": "gpt-5-mini"
+      },
+      "human_author": "Jiseok CHOI <jiseok.dev@gmail.com>"
+    }
+  }
+}
