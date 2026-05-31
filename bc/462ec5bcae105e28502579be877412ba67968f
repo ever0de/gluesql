@@ -1,0 +1,28 @@
+core/src/executor/alter/table.rs
+  ai_agent 72-73,85-86
+  s_6b2d01f73698c6::t_8b58c1b90c00c7 20
+core/src/executor/execute.rs
+  s_6b2d01f73698c6::t_e83de2e8cf4184 342
+  s_6b2d01f73698c6::t_7d56c4d4c930c2 271
+core/src/executor/select.rs
+  s_6b2d01f73698c6::t_086ccf1a47f54b 385
+  s_6b2d01f73698c6::t_363272edd685c9 149,158-173,176,181,184-185,187-198,200-201,206-214
+  ai_agent 183,316-321
+  s_6b2d01f73698c6::t_9410189787c751 302-304,315
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "bc462ec5bcae105e28502579be877412ba67968f",
+  "prompts": {},
+  "sessions": {
+    "s_6b2d01f73698c6": {
+      "agent_id": {
+        "tool": "github-copilot",
+        "id": "7c08bac6-7f26-4422-bec4-0fe5ff409dd3",
+        "model": "gpt-5-mini"
+      },
+      "human_author": "Jiseok CHOI <jiseok.dev@gmail.com>"
+    }
+  }
+}
