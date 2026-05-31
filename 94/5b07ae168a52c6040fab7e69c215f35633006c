@@ -1,0 +1,42 @@
+core/src/executor/select.rs
+  s_6b2d01f73698c6::t_92c7ada52ef9d0 18
+  s_6b2d01f73698c6::t_5e91acff9da223 161-162
+  s_6b2d01f73698c6::t_8c2ac78687caf8 85,87,90
+core/src/plan/schemaless/validate.rs
+  s_6b2d01f73698c6::t_5e91acff9da223 78-79
+core/src/plan/index.rs
+  s_6b2d01f73698c6::t_acbc3c6ae7b59a 60
+  s_6b2d01f73698c6::t_5e91acff9da223 56
+core/src/plan/expr/evaluable.rs
+  s_6b2d01f73698c6::t_5e91acff9da223 57-58
+core/src/plan/statement/query.rs
+  s_6b2d01f73698c6::t_73d83292165f8f 46-56
+core/src/plan/join.rs
+  s_6b2d01f73698c6::t_5e91acff9da223 56
+  s_6b2d01f73698c6::t_acbc3c6ae7b59a 60
+core/src/plan/schemaless/query.rs
+  s_6b2d01f73698c6::t_5e91acff9da223 47,51
+core/src/executor/fetch.rs
+  s_6b2d01f73698c6::t_5e91acff9da223 497
+core/src/plan/validate.rs
+  s_6b2d01f73698c6::t_5e91acff9da223 52,55
+core/src/plan/primary_key.rs
+  s_6b2d01f73698c6::t_5e91acff9da223 47
+  s_6b2d01f73698c6::t_acbc3c6ae7b59a 51
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "945b07ae168a52c6040fab7e69c215f35633006c",
+  "prompts": {},
+  "sessions": {
+    "s_6b2d01f73698c6": {
+      "agent_id": {
+        "tool": "github-copilot",
+        "id": "7c08bac6-7f26-4422-bec4-0fe5ff409dd3",
+        "model": "gpt-5-mini"
+      },
+      "human_author": "Jiseok CHOI <jiseok.dev@gmail.com>"
+    }
+  }
+}
