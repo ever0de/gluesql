@@ -1,0 +1,25 @@
+Cargo.lock
+  ai_agent 1327
+core/Cargo.toml
+  s_6b2d01f73698c6::t_d3383acf068984 36
+core/src/executor/select.rs
+  s_6b2d01f73698c6::t_c527ad06eeae6e 31,273,275-280,352,354-359
+  s_6b2d01f73698c6::t_0273efbee97a1b 274,281,353,360
+  s_6b2d01f73698c6::t_bb7e8b808cdd07 282-283
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.2",
+  "base_commit_sha": "e725e8e24f8a9f64ad3fc6a0ce407b32fbc624f5",
+  "prompts": {},
+  "sessions": {
+    "s_6b2d01f73698c6": {
+      "agent_id": {
+        "tool": "github-copilot",
+        "id": "7c08bac6-7f26-4422-bec4-0fe5ff409dd3",
+        "model": "gpt-5-mini"
+      },
+      "human_author": "Jiseok CHOI <jiseok.dev@gmail.com>"
+    }
+  }
+}
